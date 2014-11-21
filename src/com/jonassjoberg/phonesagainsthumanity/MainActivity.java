@@ -53,19 +53,19 @@ public class MainActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(v.getContext(), ClientActivity.class);
+				Intent intent = new Intent(v.getContext(), JoinActivity.class);
 				startActivity(intent);
 			}
 		});
 
-//		buttonHost.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				Intent intent = new Intent(v.getContext(), ServerActivity.class);
-//				startActivity(intent);
-//			}
-//		});
+		buttonHost.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(v.getContext(), HostActivity.class);
+				startActivity(intent);
+			}
+		});
 	}
 
 	@Override

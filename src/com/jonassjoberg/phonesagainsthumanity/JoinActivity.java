@@ -21,7 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
-public class ClientActivity extends ActionBarActivity {
+public class JoinActivity extends ActionBarActivity {
 
 	private ArrayAdapter<String> mArrayAdapter;
 	private Button buttonBluetoothSearch, buttonBluetoothConnect;
@@ -34,7 +34,7 @@ public class ClientActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_client);
+		setContentView(R.layout.activity_join);
 
 		mArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
@@ -88,7 +88,7 @@ public class ClientActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.client, menu);
+		getMenuInflater().inflate(R.menu.join, menu);
 		return true;
 	}
 
