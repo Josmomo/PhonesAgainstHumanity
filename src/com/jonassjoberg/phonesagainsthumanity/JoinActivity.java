@@ -1,9 +1,5 @@
 package com.jonassjoberg.phonesagainsthumanity;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -17,40 +13,49 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
 public class JoinActivity extends ActionBarActivity {
 
+	private ClientThread clientThread;
 	private ArrayAdapter<String> mArrayAdapter;
 	private Button buttonBluetoothSearch, buttonBluetoothConnect;
-	private BluetoothSocket bSocket;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice mBluetoothDevice;
-	private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+	private String address = "";
+	private ListView listView;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_join);
-
+		
 		mArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
-		ListView listView = (ListView) findViewById(R.id.listViewBluetoothSearchResult);
+		listView = (ListView) findViewById(R.id.listViewBluetoothSearchResult);
 		listView.setAdapter(mArrayAdapter);
+		listView.setOnItemClickListener(new OnItemClickListener() {
 
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
+				String s[] = mArrayAdapter.getItem(pos).split("\n");
+				address = s[1];
+			}
+			
+		});
 		buttonBluetoothSearch = (Button) findViewById(R.id.buttonBluetoothSearch);
 		buttonBluetoothConnect = (Button) findViewById(R.id.buttonBluetoothConnect);
-
-
+		
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 		// Register the BroadcastReceiver
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-
 
 		buttonBluetoothSearch.setOnClickListener(new OnClickListener() {
 
@@ -66,23 +71,16 @@ public class JoinActivity extends ActionBarActivity {
 
 			}
 		});
-//		buttonBluetoothConnect.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				mBluetoothDevice = mBluetoothAdapter.getRemoteDevice("20:73:00:3A:E7:03");
-//
-//				try {
-//					bSocket = mBluetoothDevice.createInsecureRfcommSocketToServiceRecord(uuid);
-//					if (bSocket != null) {
-//						bSocket.connect();
-//					}
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+		buttonBluetoothConnect.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (address != "")
+				mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(address);
+				clientThread = new ClientThread(mBluetoothDevice);
+				clientThread.start();
+			}
+		});
 	}
 
 	@Override
@@ -122,7 +120,7 @@ public class JoinActivity extends ActionBarActivity {
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				
 				// Add the name and address to an array adapter to show in a ListView
-				mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+				mArrayAdapter.add(device.getName() + "\n" + device.getAddress()); // "E4:B0:21:B7:9F:65"
 			}
 		}
 	};

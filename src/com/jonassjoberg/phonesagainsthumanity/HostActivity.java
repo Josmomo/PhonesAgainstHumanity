@@ -1,14 +1,9 @@
 package com.jonassjoberg.phonesagainsthumanity;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothServerSocket;
-import android.content.Intent;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,32 +13,37 @@ import android.widget.TextView;
 
 public class HostActivity extends ActionBarActivity {
 
-	private Deck deck;
-	private Button buttonNextCard;
-	TextView t;
+	private ServerThread serverThread;
+	private ClientThread clientThread;
+	private BluetoothDevice mBluetoothDevice;
 	private BluetoothAdapter mBluetoothAdapter;
-	private BluetoothServerSocket mBluetoothServerSocket;
-	private int numPlayers = 1;
-	private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
+	
+	private Button buttonNextCard;
+	private TextView t;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_host);
+		
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(mBluetoothAdapter.getAddress()); // "E4:B0:21:B7:9F:65"
 
 		t = (TextView) findViewById(R.id.textViewTemp);
 
-		deck = new Deck(this, R.string.white_card, "deck_white.properties");
 		buttonNextCard = (Button) findViewById(R.id.buttonNextCard);
 		buttonNextCard.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				t.setText(deck.nextCard().getText());
+				t.setText("Fungerar");
 			}
 		});
 
+		serverThread = new ServerThread();
+		clientThread = new ClientThread(mBluetoothDevice);
+		serverThread.start();
+		clientThread.start();
 	}
 
 	@Override

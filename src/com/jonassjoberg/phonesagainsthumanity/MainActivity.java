@@ -1,6 +1,7 @@
 package com.jonassjoberg.phonesagainsthumanity;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +18,8 @@ public class MainActivity extends ActionBarActivity {
 
 	private Button buttonJoin, buttonHost;
 	private BluetoothAdapter mBluetoothAdapter;
+	private ServerThread serverThread;
+	private ClientThread clientThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +65,16 @@ public class MainActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(v.getContext(), HostActivity.class);
-				startActivity(intent);
+				// Start a server and initiate a client that connects to this device
+				serverThread = new ServerThread();
+				BluetoothDevice btd = mBluetoothAdapter.getRemoteDevice(mBluetoothAdapter.getAddress());
+				System.out.println(btd.toString());
+				
+				serverThread.start();
+//				clientThread.start();
+				
+//				Intent intent = new Intent(v.getContext(), HostActivity.class);
+//				startActivity(intent);
 			}
 		});
 	}
