@@ -1,27 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/textViewTemp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Server" />
-
-    <Button
-        android:id="@+id/buttonNextCard"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next Card" />
-
-    <TextView
-        android:id="@+id/textViewHostWaiting"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Waiting for players to connect"
-        android:textAppearance="@android:style/TextAppearance.Large" />
+    android:layout_height="match_parent" >
 
     <ProgressBar
         android:id="@+id/progressBarHostWaiting"
@@ -29,5 +9,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" />
+
+    <ListView
+        android:id="@+id/listViewBluetoothConnectedDevices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+
+    <Button
+        android:id="@+id/buttonBluetoothSendCommand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send command" />
+
+    <TextView
+        android:id="@+id/textViewReceive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From Client" />
 
 </LinearLayout>
