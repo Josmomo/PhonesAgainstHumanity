@@ -18,7 +18,9 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,11 +29,15 @@
         </activity>
         <activity
             android:name=".JoinActivity"
-            android:label="@string/title_activity_client" >
+            android:label="@string/title_activity_client"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
         </activity>
         <activity
             android:name=".HostActivity"
-            android:label="@string/title_activity_server" >
+            android:label="@string/title_activity_server"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
         </activity>
     </application>
 

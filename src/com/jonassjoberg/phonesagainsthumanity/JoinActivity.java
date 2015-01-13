@@ -28,7 +28,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-public class JoinActivity extends ActionBarActivity {
+public class JoinActivity extends Activity {
 
 	private ClientThread clientThread;
 	private ArrayAdapter<String> mArrayAdapterSearchResults, mArrayAdapterCards;
@@ -161,7 +161,7 @@ public class JoinActivity extends ActionBarActivity {
 
 
 	/**
-	 * The ClientThread will handle all bluetooth communcation to a host server.
+	 * The ClientThread will handle all bluetooth communication to a host server.
 	 * @author Jonas
 	 *
 	 */
@@ -174,7 +174,7 @@ public class JoinActivity extends ActionBarActivity {
 		private final OutputStream mOutputStream;
 		private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-		private byte[] readBuffer = new byte[80];
+		private byte[] readBuffer = new byte[128];
 
 		public ClientThread(BluetoothDevice device) {
 			mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -247,11 +247,16 @@ public class JoinActivity extends ActionBarActivity {
 			try {
 				if (mInputStream != null) {
 					mInputStream.read(readBuffer);
+					// Add the card to hand
 					myActivity.runOnUiThread(new Runnable() {
 					    public void run() {
 					    	try {
 								String s = new String(readBuffer, "UTF-8");
 								mArrayAdapterCards.add(s);
+								// Reset the buffer so that the old text won't be left to the next reading
+								for (int i=0; i<readBuffer.length; i++) {
+									readBuffer[i] = 0;
+								}
 							} catch (UnsupportedEncodingException e) {
 								e.printStackTrace();
 							}

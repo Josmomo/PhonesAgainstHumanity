@@ -12,16 +12,18 @@
         android:id="@+id/buttonJoin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="Join" />
-
+        android:layout_above="@+id/buttonHost"
+        android:layout_centerHorizontal="true"
+        android:text="Join"
+        android:onClick="joinActivity" />
+    
     <Button
         android:id="@+id/buttonHost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/buttonJoin"
-        android:text="Host" />
+        android:layout_alignLeft="@+id/buttonJoin"
+        android:layout_centerVertical="true"
+        android:text="Host"
+        android:onClick="hostActivity" />
 
 </RelativeLayout>

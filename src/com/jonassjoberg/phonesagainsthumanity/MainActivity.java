@@ -2,7 +2,6 @@ package com.jonassjoberg.phonesagainsthumanity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -10,13 +9,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
-	private Button buttonJoin, buttonHost;
+	private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 	private BluetoothAdapter mBluetoothAdapter;
 
 	@Override
@@ -24,52 +21,30 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		buttonJoin = (Button) findViewById(R.id.buttonJoin);
-		buttonHost = (Button) findViewById(R.id.buttonHost);
-
-		// Check if the device has a Bluetooth adapter
+		// Check if the device has a bluetooth adapter
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (mBluetoothAdapter != null) {
-			// Start Bluetooth if it isn't on
+
+			// Start bluetooth if it isn't on
 			// Make the device visible to others
 			if (!mBluetoothAdapter.isEnabled()) {
-				Intent discoverableIntent = new	Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-				discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
-				startActivity(discoverableIntent);
-			}
+				// Start Bluetooth
+				Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+				startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BLUETOOTH);
+
+				// TODO Use to activate discovery, copy to host activity
+				//				Intent discoverableIntent = new	Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+				//				discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
+				//				startActivity(discoverableIntent);
+			}			
 		} else {
-			// Device does not support Bluetooth
-			// The device should not continue
+			// Device does not support bluetooth
+			// Close the application
 			Log.d(this.getPackageName(), "No Bluetooth on this device");
 
-			Context context = getApplicationContext();
-			String text = "Sorry, your phone does not support Bluetooth";
-
-			Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "Sorry, your phone does not support Bluetooth", Toast.LENGTH_LONG).show();
 			finish();
 		}
-
-
-		buttonJoin.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(v.getContext(), JoinActivity.class);
-				startActivity(intent);
-			}
-		});
-
-		buttonHost.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				BluetoothDevice btd = mBluetoothAdapter.getRemoteDevice(mBluetoothAdapter.getAddress());
-				System.out.println(btd.toString());
-				
-				Intent intent = new Intent(v.getContext(), HostActivity.class);
-				startActivity(intent);
-			}
-		});
 	}
 
 	@Override
@@ -89,5 +64,38 @@ public class MainActivity extends ActionBarActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onDestroy() {
+		// Turn of bluetooth
+		mBluetoothAdapter.disable();
+		Toast.makeText(getApplicationContext(), "TURNING OFF BLUETOOTH", Toast.LENGTH_LONG).show();
+
+		// TODO Auto-generated method stub
+		super.onDestroy();
+	}
+
+
+	/**
+	 * Start the join activity when the button is pressed.
+	 * @param v The button
+	 */
+	public void joinActivity(View v) {
+		Intent intent = new Intent(v.getContext(), JoinActivity.class);
+		startActivity(intent);
+	}
+
+	/**
+	 * Start the host activity when the button is pressed.
+	 * @param v The button
+	 */
+	public void hostActivity(View v) {
+		// TODO Only for printing purpose, remove later
+		BluetoothDevice btd = mBluetoothAdapter.getRemoteDevice(mBluetoothAdapter.getAddress());
+		System.out.println(btd.toString());
+
+		Intent intent = new Intent(v.getContext(), HostActivity.class);
+		startActivity(intent);
 	}
 }

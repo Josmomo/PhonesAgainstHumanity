@@ -8,13 +8,16 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +28,11 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class HostActivity extends ActionBarActivity {
+public class HostActivity extends Activity {
+
+	private final int NEW_GAME = 1;
+	private final int NEW_TURN = 2;
+	private final int WAITING_FOR_CLIENT_RESPONSE = 3;
 
 	private ServerThread serverThread;
 	private BluetoothDevice mBluetoothDevice;
@@ -33,11 +40,15 @@ public class HostActivity extends ActionBarActivity {
 	private ArrayAdapter<String> mArrayAdapter;
 	private ListView listView;
 	private Activity myActivity;
+	private Handler mHandler;
 
 	private Button buttonBluetoothSendCommand;
 	private TextView t2;
-	private boolean newTurn = true;
 	private Deck deck;
+
+	private int gameState = NEW_GAME;
+	public boolean allPlayersAdded = false;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +57,7 @@ public class HostActivity extends ActionBarActivity {
 
 		myActivity = this;
 		deck = new Deck(this, Color.WHITE, "deck_white.properties");
+		mHandler = new Handler();
 
 		mArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
@@ -64,7 +76,7 @@ public class HostActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
+				gameState = NEW_TURN;
 			}
 		});
 
@@ -107,7 +119,7 @@ public class HostActivity extends ActionBarActivity {
 		private ArrayList<OutputStream> outputStreamList;
 		private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-		private byte[] readBuffer = new byte[80];
+		private byte[] readBuffer = new byte[128];
 
 		public ServerThread() {
 			mBluetoothServerSocket = null;
@@ -125,11 +137,48 @@ public class HostActivity extends ActionBarActivity {
 
 		@Override
 		public void run() {
+			Intent discoverableIntent = new	Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
+			startActivity(discoverableIntent);
 
-			for (int i=0; i<1; i++) {
-				mBluetoothSocket = null;
-				InputStream tmpIn = null;
-				OutputStream tmpOut = null;
+			addPlayersToHost();
+
+			while (true) {
+				switch (gameState) {
+				case NEW_GAME:
+					for (int i=0; i<socketList.size(); i++) {
+						write(deck.nextCard().getText().getBytes(), outputStreamList.get(i));
+					}
+					gameState = WAITING_FOR_CLIENT_RESPONSE;
+					break;
+				case NEW_TURN:
+					for (int i=0; i<socketList.size(); i++) {
+						// Send a card
+						write(deck.nextCard().getText().getBytes(), outputStreamList.get(i));
+					}
+					gameState = WAITING_FOR_CLIENT_RESPONSE;
+					break;
+				default:
+					try {
+						sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					//					for (int i=0; i<socketList.size(); i++) {
+					//						read(inputStreamList.get(i));
+					//					}
+				}
+			}
+		}
+
+		private void addPlayersToHost() {
+			
+			mBluetoothSocket = null;
+			InputStream tmpIn = null;
+			OutputStream tmpOut = null;
+			
+			// Do for all players
+			while (!allPlayersAdded ) {
 
 				try {
 					// Listen for incoming connections
@@ -137,36 +186,78 @@ public class HostActivity extends ActionBarActivity {
 					mBluetoothSocket = mBluetoothServerSocket.accept();
 					if (mBluetoothSocket != null) {
 						Log.d(getName(), "Accepted connection");
-						socketList.add(mBluetoothSocket);
 					} else {
 						Log.d(getName(), "mBluetoothSocket = null");
+						continue;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					break;
+					continue;
 				}
 
 
-				// Try to get the input and outputstream, otherwise the will be set to null
+				// Try to get the input and outputstream, otherwise they will be set to null
 				if (mBluetoothSocket != null) {
 					try {
 						if (mBluetoothSocket.getInputStream() != null) {
 							tmpIn = mBluetoothSocket.getInputStream();
-							inputStreamList.add(tmpIn);
 						}
 						if (mBluetoothSocket.getOutputStream() != null) {
 							tmpOut = mBluetoothSocket.getOutputStream();
-							outputStreamList.add(tmpOut);
 						}
 					} catch (IOException e) {
+						e.printStackTrace();
+						continue;
 					}
 				}
 
-				myActivity.runOnUiThread(new Runnable() {
+
+				// Add everything to corresponding lists
+				socketList.add(mBluetoothSocket);
+				inputStreamList.add(tmpIn);
+				outputStreamList.add(tmpOut);
+
+				// List the device as connected
+				mHandler.post(new Runnable() {
+					
+					@Override
 					public void run() {
 						mArrayAdapter.add(mBluetoothSocket.getRemoteDevice().getName());
+						// TODO Ask if another player should be added
 					}
 				});
+//				myActivity.runOnUiThread(new Runnable() {
+//					public void run() {
+//						Log.i("", mArrayAdapter.toString());
+//						Log.i("", mBluetoothSocket.toString());
+//						mArrayAdapter.add(mBluetoothSocket.getRemoteDevice().getName());
+//						// TODO Ask if another player should be added
+//					}
+//				});
+
+
+				// Run on UI-thread
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						// Create an alertdialog and show it
+						AlertDialog.Builder builder = new AlertDialog.Builder(myActivity);
+						builder.setMessage("Add another player?")
+						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								// FIRE ZE MISSILES!
+							}
+						})
+						.setNegativeButton("No", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								allPlayersAdded = true;
+							}
+						});
+						// Create the AlertDialog object and return it
+						builder.create().show();
+					}
+				});
+
 			}
 
 			// Close the serverSocket when all devices are accepted
@@ -175,27 +266,7 @@ public class HostActivity extends ActionBarActivity {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
-			while (true) {
-				for (int i=0; i<socketList.size(); i++) {
-					read(inputStreamList.get(i));
-				}
-
-				if (newTurn) {
-					for (int i=0; i<socketList.size(); i++) {
-						// Send a card
-						write(deck.nextCard().getText().getBytes(), outputStreamList.get(i));
-					}
-					newTurn = false;
-				}
-
-				try {
-					sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		}		
 
 		public void write(byte[] bytes, OutputStream out) {
 			try {
@@ -214,6 +285,9 @@ public class HostActivity extends ActionBarActivity {
 						try {
 							String s = new String(readBuffer, "UTF-8");
 							t2.setText(s);
+							for (int i=0; i<readBuffer.length; i++) {
+								readBuffer[i] = 0;
+							}
 						} catch (UnsupportedEncodingException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
