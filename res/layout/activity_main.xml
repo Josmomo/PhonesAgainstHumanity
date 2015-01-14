@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -10,29 +11,32 @@
 
     <Button
         android:id="@+id/buttonJoin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
         android:layout_above="@+id/buttonHost"
-        android:layout_centerHorizontal="true"
-        android:text="Join"
-        android:onClick="joinActivity" />
+        android:background="@drawable/buttons"
+        android:layout_marginTop="100dp"
+        android:onClick="joinActivity"
+        android:text="Join" />
     
     <Button
-        android:id="@+id/buttonHost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/buttonJoin"
-        android:layout_centerVertical="true"
-        android:text="Host"
-        android:onClick="hostActivity" />
+        android:id="@+id/buttonDownload"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/buttons"
+        android:onClick="startDownload"
+        android:text="Download standard decks" />
 
     <Button
-        android:id="@+id/buttonDownload"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonHost"
-        android:layout_centerHorizontal="true"
-        android:text="Download standard decks"
-        android:onClick="startDownload" />
+        android:id="@+id/buttonHost"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
+        android:background="@drawable/buttons"
+        android:layout_above="@id/buttonDownload"
+        android:onClick="hostActivity"
+        android:text="Host" />
+
+    
 
 </RelativeLayout>

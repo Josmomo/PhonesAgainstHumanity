@@ -10,6 +10,9 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
 
     <application
         android:allowBackup="true"
@@ -18,7 +21,9 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,12 +31,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ClientActivity"
-            android:label="@string/title_activity_client" >
+            android:name=".JoinActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_client"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".ServerActivity"
-            android:label="@string/title_activity_server" >
+            android:name=".HostActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_server"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 

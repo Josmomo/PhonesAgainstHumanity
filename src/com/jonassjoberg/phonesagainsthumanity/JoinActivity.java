@@ -286,8 +286,6 @@ public class JoinActivity extends Activity {
 								}
 
 
-
-
 								// Reset the buffer so that the old text won't be left to the next reading
 								for (int i=0; i<readBuffer.length; i++) {
 									readBuffer[i] = 0;
