@@ -128,7 +128,9 @@ public class JoinActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				String bytes = "Sending from Client";
-				while(!clientThread.write(bytes.getBytes())) {}
+				//while(!clientThread.write(bytes.getBytes())) {}
+				Intent intent = new Intent(v.getContext(), com.jonassjoberg.phonesagainsthumanity.GameActivity.class);
+				startActivity(intent);
 			}
 		});
 
