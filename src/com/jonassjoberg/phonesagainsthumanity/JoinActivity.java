@@ -31,13 +31,13 @@ import android.widget.ListView;
 public class JoinActivity extends Activity {
 
 	private ClientThread clientThread;
-	private ArrayAdapter<String> mArrayAdapterSearchResults, mArrayAdapterCards, mArrayAdapterVoteCards;
+	private ArrayAdapter<String> mArrayAdapterSearchResults;
 	private Button buttonBluetoothSearch, buttonBluetoothSend;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice mBluetoothDevice;
 	private String address = "E4:B0:21:B7:9F:65";
-	private ListView listViewSearchResults, listViewCards, listViewVoteCards;
-	private Activity myActivity;
+	private ListView listViewSearchResults;
+	private JoinActivity myActivity;
 	private int points = 0;
 
 	@Override
@@ -57,8 +57,6 @@ public class JoinActivity extends Activity {
 
 
 		mArrayAdapterSearchResults = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-		mArrayAdapterCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-		mArrayAdapterVoteCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
 		listViewSearchResults = (ListView) findViewById(R.id.listViewBluetoothSearchResult);
 		listViewSearchResults.setAdapter(mArrayAdapterSearchResults);
@@ -76,36 +74,13 @@ public class JoinActivity extends Activity {
 					if (clientThread != null) {
 						clientThread.cancel();
 					}
-					clientThread = new ClientThread(mBluetoothDevice, new Handler());
+					clientThread = new ClientThread(mBluetoothDevice, myActivity, new Handler());
 					clientThread.start();
 				}
 			}
 
 		});
-/*
-		listViewCards = (ListView) findViewById(R.id.listViewCards);
-		listViewCards.setAdapter(mArrayAdapterCards);
-		listViewCards.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-				// Send the picked card as response to the black card
-				while (!clientThread.write((Constants.RESPONSE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
-			}
 
-		});
-
-		listViewVoteCards = (ListView) findViewById(R.id.listViewVoteCards);
-		listViewVoteCards.setAdapter(mArrayAdapterVoteCards);
-		listViewVoteCards.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-				// Send the picked card as response to the black card
-				while (!clientThread.write((Constants.VOTE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
-			}
-
-		});
-*/
 		buttonBluetoothSearch = (Button) findViewById(R.id.buttonBluetoothSearch);
 		buttonBluetoothSend = (Button) findViewById(R.id.buttonBluetoothSend);
 
@@ -176,141 +151,10 @@ public class JoinActivity extends Activity {
 			}
 		}
 	};
-
-	/**
-	 * The ClientThread will handle all bluetooth communication to a host server.
-	 * @author Jonas
-	 *
-	 */
-	private class ClientThread extends Thread implements Runnable {
-
-		private BluetoothAdapter mBluetoothAdapter;
-		private BluetoothDevice mBluetoothDevice;
-		private BluetoothSocket mBluetoothSocket;
-		private final InputStream mInputStream;
-		private final OutputStream mOutputStream;
-		private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
-		private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
-		private Handler mHandler;
-
-		public ClientThread(BluetoothDevice device, Handler h) {
-			mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-			mBluetoothDevice = device;
-			mHandler = h;
-			BluetoothSocket tmp = null;
-			InputStream tmpIn = null;
-			OutputStream tmpOut = null;
-
-			// Get a BluetoothSocket to connect with the given BluetoothDevice
-			try {
-				tmp = mBluetoothDevice.createInsecureRfcommSocketToServiceRecord(uuid);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			mBluetoothSocket = tmp;
-
-			// Try to get the input and outputstream, otherwise the will be set to null
-			if (mBluetoothSocket != null) {
-				try {
-					tmpIn = mBluetoothSocket.getInputStream();
-					tmpOut = mBluetoothSocket.getOutputStream();
-				} catch (IOException e) { }
-			}
-			mInputStream = tmpIn;
-			mOutputStream = tmpOut;
-		}
-
-		@Override
-		public void run() {
-			mBluetoothAdapter.cancelDiscovery();
-
-			try {
-				// Blocks
-				mBluetoothSocket.connect();
-				Log.d(getName(), "Connected to server");
-			} catch (IOException connectException) {
-				// Unable to connect, close the socket and get out
-				try {
-					mBluetoothSocket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				return;
-			}
-
-			while (true) {
-				read();
-			}
-		}
-
-		/**
-		 * Writes to the outputstream
-		 * @param bytes to write
-		 * @return
-		 */
-		public boolean write(byte[] bytes) {
-			try {
-				if (mOutputStream != null) {
-					mOutputStream.write(bytes);
-					return true;
-				}
-			} catch (IOException e) { 
-				e.printStackTrace();
-			}
-			return false;
-		}
-
-		public boolean read() {
-			try {
-				if (mInputStream != null) {
-					mInputStream.read(readBuffer);
-					int skip = (int) mInputStream.skip(Constants.READ_BUFFER_SIZE);
-					// Add the card to hand
-					mHandler.post(new Runnable() {
-						public void run() {
-							try {
-								String s = new String(readBuffer, "UTF-8");
-								String command = s.substring(0, 3);
-								String message = s.substring(3);
-
-								switch (command) {
-								case Constants.DECK_CARD:
-									mArrayAdapterCards.add(message);
-									break;
-								case Constants.VOTE_CARD:
-									mArrayAdapterVoteCards.add(message);
-									break;
-								case Constants.POINT:
-									break;
-								default:
-								}
-
-
-								// Reset the buffer so that the old text won't be left to the next reading
-								for (int i=0; i<readBuffer.length; i++) {
-									readBuffer[i] = 0;
-								}
-							} catch (UnsupportedEncodingException e) {
-								e.printStackTrace();
-							}
-						}
-					});
-					return true;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return false;
-		}
-
-		/** Will cancel an in-progress connection, and close the socket */
-		public void cancel() {
-			try {
-				mBluetoothSocket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+	
+	public void startGameActivity() {
+		GameActivity.clientThread = clientThread;
+		Intent i = new Intent(this, GameActivity.class);
+		startActivity(i);
 	}
 }

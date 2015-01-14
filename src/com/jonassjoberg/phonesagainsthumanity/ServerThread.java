@@ -26,7 +26,6 @@ import android.util.Log;
  * 
  */
 public class ServerThread extends Thread implements Runnable  {
-	
 	private final int NEW_GAME = 1;
 	private final int NEW_TURN = 2;
 	private final int WAITING_FOR_CLIENT_RESPONSE = 3;
@@ -43,16 +42,14 @@ public class ServerThread extends Thread implements Runnable  {
 	private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
 	private Object syncToken;
 	private Deck deck;
-	private Activity myActivity;
+	private HostActivity myActivity;
 	private Context hostActivityContext;
 	private boolean allPlayersAdded = false;
 	private boolean wait = true;
-	private Handler mHandler;
 	private int numberOfPlayers = 0;
 
-	public ServerThread(Activity a, Handler h) {
+	public ServerThread(HostActivity a) {
 		myActivity = a;
-		mHandler = h;
 		hostActivityContext = myActivity.getApplicationContext();
 		mBluetoothServerSocket = null;
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -165,7 +162,7 @@ public class ServerThread extends Thread implements Runnable  {
 			numberOfPlayers++;
 
 			// Run on UI-thread
-			mHandler.post(new Runnable() {
+			myActivity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					// Create an alertdialog and show it
@@ -184,8 +181,7 @@ public class ServerThread extends Thread implements Runnable  {
 								while (!write((Constants.START_GAME + "." + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
 							}
 							
-							Intent i = new Intent(myActivity, GameHostActivity.class);
-							myActivity.startActivity(i);
+							myActivity.startGameHostActivity();
 						}
 					});
 					// Create the AlertDialog object and return it
@@ -260,7 +256,7 @@ public class ServerThread extends Thread implements Runnable  {
 							case Constants.RESPONSE_CARD:
 								// TODO
 								// Add message to this turns responslist
-//								mArrayAdapterCards.add(message);
+								myActivity.addToAdapter(message);
 								break;
 							case Constants.VOTE_CARD:
 								// TODO

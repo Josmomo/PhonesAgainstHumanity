@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class GameHostActivity extends Activity {
+	public static ServerThread serverThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
