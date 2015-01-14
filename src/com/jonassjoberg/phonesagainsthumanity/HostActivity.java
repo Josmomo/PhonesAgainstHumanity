@@ -1,26 +1,11 @@
 package com.jonassjoberg.phonesagainsthumanity;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.UUID;
-
-import Utils.Constants;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,21 +49,9 @@ public class HostActivity extends Activity {
 
 		listView = (ListView) findViewById(R.id.listViewBluetoothConnectedDevices);
 		listView.setAdapter(mArrayAdapter);
-		
-//		listViewRespondCards = (ListView) findViewById(R.id.ListViewRespondCards);
-//		listViewRespondCards.setAdapter(mArrayAdapterCards);
 
-		buttonBluetoothSendCommand = (Button) findViewById(R.id.buttonBluetoothSendCommand);
 
-		buttonBluetoothSendCommand.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				gameState = NEW_TURN;
-			}
-		});
-
-		serverThread = new ServerThread(this);
+		serverThread = new ServerThread(this, new Handler());
 		serverThread.start();
 	}
 
@@ -99,15 +72,5 @@ public class HostActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-	
-	public void addToAdapter(String s) {
-		mArrayAdapter.add(s);
-	}
-	
-	public void startGameHostActivity() {
-		GameHostActivity.serverThread = serverThread;
-		Intent i = new Intent(this, GameHostActivity.class);
-		startActivity(i);
 	}
 }
