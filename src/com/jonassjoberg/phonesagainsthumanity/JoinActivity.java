@@ -82,11 +82,10 @@ public class JoinActivity extends Activity {
 			}
 
 		});
-
+/*
 		listViewCards = (ListView) findViewById(R.id.listViewCards);
 		listViewCards.setAdapter(mArrayAdapterCards);
 		listViewCards.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
 				// Send the picked card as response to the black card
@@ -106,7 +105,7 @@ public class JoinActivity extends Activity {
 			}
 
 		});
-
+*/
 		buttonBluetoothSearch = (Button) findViewById(R.id.buttonBluetoothSearch);
 		buttonBluetoothSend = (Button) findViewById(R.id.buttonBluetoothSend);
 
