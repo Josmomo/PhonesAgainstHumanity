@@ -3,6 +3,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <Button
+        android:id="@+id/buttonBluetoothSendCommand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send command" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,62 +25,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
         </ListView>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/buttonBluetoothSendCommand"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send command" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:baselineAligned="false" >
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/TextView01"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hand"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <ListView
-                android:id="@+id/ListView01"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
- >
-            </ListView>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/textViewReceive"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Voting Cards"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <ListView
-                android:id="@+id/ListViewRespondCards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
- >
-            </ListView>
-
-        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

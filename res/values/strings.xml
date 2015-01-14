@@ -9,5 +9,8 @@
     <string name="black_card">0</string>
     <string name="white_card">1</string>
     <string name="uuid">00001101-0000-1000-8000-00805F9B34FB</string>
+    <string name="title_activity_server_thread">ServerThread</string>
+    <string name="title_activity_game_host">GameHostActivity</string>
+    <string name="title_activity_game">GameActivity</string>
 
 </resources>
