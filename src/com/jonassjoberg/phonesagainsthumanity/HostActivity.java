@@ -51,7 +51,7 @@ public class HostActivity extends Activity {
 		listView.setAdapter(mArrayAdapter);
 
 
-		serverThread = new ServerThread(this, new Handler());
+		serverThread = new ServerThread(this);
 		serverThread.start();
 	}
 
@@ -73,4 +73,9 @@ public class HostActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	public void addToAdapter(String s) {
+		mArrayAdapter.add(s);
+	}
+
 }

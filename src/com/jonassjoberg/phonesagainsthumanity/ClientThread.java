@@ -30,15 +30,16 @@ public class ClientThread extends Thread implements Runnable {
 	private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 	private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
-	private Activity myActivity;
+	private JoinActivity joinActivity;
+	private GameActivity gameActivity;
 	private Handler mHandler;
 	private String rest = "";
 	private Stack<String> readStack;
 
-	public ClientThread(BluetoothDevice device, Activity a, Handler h) {
+	public ClientThread(BluetoothDevice device, JoinActivity a, Handler h) {
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mBluetoothDevice = device;
-		myActivity = a;
+		joinActivity = a;
 		mHandler = h;
 		BluetoothSocket tmp = null;
 		InputStream tmpIn = null;
@@ -108,44 +109,42 @@ public class ClientThread extends Thread implements Runnable {
 		try {
 			if (mInputStream != null) {
 				mInputStream.read(readBuffer);
-//				int skip = (int) mInputStream.skip(Constants.READ_BUFFER_SIZE);
+				//				int skip = (int) mInputStream.skip(Constants.READ_BUFFER_SIZE);
 				readStack.add(new String(readBuffer, "UTF-8"));
-				
+
 				// Reset the buffer so that the old text won't be left to the next reading
 				for (int i=0; i<readBuffer.length; i++) {
 					readBuffer[i] = 0;
 				}
-				
+
 				// Add the card to hand
-				myActivity.runOnUiThread(new Runnable() {
 
-					public void run() {
-						String s = readStack.pop();
-						String[] cards = s.split(Constants.CARD_END_TAG);
-						for (String card : cards) {
-							if (card.endsWith(".")) {
-								String command = card.substring(0, 3);
-								String message = card.substring(3);
+				String s = readStack.pop();
+				String[] cards = s.split(Constants.CARD_END_TAG);
+				for (String card : cards) {
+					if (card.endsWith(".")) {
+						String command = card.substring(0, 3);
+						String message = card.substring(3);
 
-								switch (command) {
-								case Constants.DECK_CARD:
-//									mArrayAdapterCards.add(message);
-									break;
-								case Constants.VOTE_CARD:
-//									mArrayAdapterVoteCards.add(message);
-									break;
-								case Constants.POINT:
-									break;
-								case Constants.START_GAME:
-									Intent i = new Intent(myActivity, GameActivity.class);
-									myActivity.startActivity(i);
-									break;
-								default:
-								}
-							}
+						switch (command) {
+						case Constants.DECK_CARD:
+							gameActivity.addToAdapterCards(message);
+							break;
+						case Constants.VOTE_CARD:
+							gameActivity.addToAdapterVoteCards(message);
+							break;
+						case Constants.POINT:
+//							gameActivity.addPoints(Integer.parseInt(message));
+							break;
+						case Constants.START_GAME:
+							Intent i = new Intent(joinActivity, GameActivity.class);
+							joinActivity.startActivity(i);
+							break;
+						default:
 						}
 					}
-				});
+				}
+
 				return true;
 			}
 		} catch (IOException e) {
@@ -161,5 +160,9 @@ public class ClientThread extends Thread implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void setGameActivity(GameActivity a) {
+		 gameActivity = a;
 	}
 }
