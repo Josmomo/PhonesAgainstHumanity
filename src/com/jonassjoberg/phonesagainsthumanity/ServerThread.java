@@ -30,14 +30,14 @@ public class ServerThread extends Thread implements Runnable  {
 	private final int NEW_TURN = 2;
 	private final int WAITING_FOR_CLIENT_RESPONSE = 3;
 	private int gameState = NEW_GAME;
-	
+
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothSocket mBluetoothSocket;
 	private BluetoothServerSocket mBluetoothServerSocket;
 	private ArrayList<BluetoothSocket> socketList;
 	private ArrayList<InputStream> inputStreamList;
 	private ArrayList<OutputStream> outputStreamList;
-	private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+	private final UUID uuid = UUID.fromString(Constants.UUID);
 
 	private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
 	private Object syncToken;
@@ -73,12 +73,12 @@ public class ServerThread extends Thread implements Runnable  {
 		while (true) {
 			switch (gameState) {
 			case NEW_GAME:
-//				for (int i=0; i<socketList.size(); i++) {
-//					for (int j=0; j<10; j++) {
-//						String text = deck.nextCard().getText();
-//						while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
-//					}
-//				}
+				//				for (int i=0; i<socketList.size(); i++) {
+				//					for (int j=0; j<10; j++) {
+				//						String text = deck.nextCard().getText();
+				//						while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
+				//					}
+				//				}
 				gameState = WAITING_FOR_CLIENT_RESPONSE;
 				break;
 			case NEW_TURN:
@@ -94,19 +94,19 @@ public class ServerThread extends Thread implements Runnable  {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				
+
 				int count = 0;
 				while (count < numberOfPlayers) {
 					if (read(inputStreamList.get(count))) {
 						count++;
 					}
 				}
-				
+
 				// All responses received
 				gameState = NEW_TURN; // TODO Change to right state later
 				break;
-				default:
-					break;
+			default:
+				break;
 			}
 		}
 	}
@@ -181,7 +181,7 @@ public class ServerThread extends Thread implements Runnable  {
 							for (int i=0; i<socketList.size(); i++) {
 								while (!write((Constants.START_GAME + "." + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
 							}
-							
+
 							hostActivity.startTheGame();
 						}
 					});
@@ -239,43 +239,41 @@ public class ServerThread extends Thread implements Runnable  {
 	 * @return True if the read is successful, otherwise false.
 	 */
 	public boolean read(InputStream in) {
-		
+
 		try {
 			if (in != null) {
 				in.read(readBuffer);
-//				int skip = (int) in.skip(Constants.READ_BUFFER_SIZE);
-				
+				//				int skip = (int) in.skip(Constants.READ_BUFFER_SIZE);
+
 				// Add the card to hand
-				hostActivity.runOnUiThread(new Runnable() {
-				    public void run() {
-				    	try {
-				    		String s = new String(readBuffer, "UTF-8");
-							String command = s.substring(0, 3);
-							String message = s.substring(3);
-							
-							switch (command) {
-							case Constants.RESPONSE_CARD:
-								// TODO
-								// Add message to this turns responslist
-								hostActivity.addToAdapter(message);
-								break;
-							case Constants.VOTE_CARD:
-								// TODO
-								break;
-							case Constants.READ_CHECK:
-								break;
-							default:
-								break;
-							}
-							// Reset the buffer so that the old text won't be left to the next reading
-							for (int i=0; i<readBuffer.length; i++) {
-								readBuffer[i] = 0;
-							}
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
-				    }
-				});
+
+				try {
+					String s = new String(readBuffer, "UTF-8");
+					String command = s.substring(0, 3);
+					String message = s.substring(3);
+
+					switch (command) {
+					case Constants.RESPONSE_CARD:
+						// TODO
+						// Add message to this turns responslist
+						hostActivity.addToAdapter(message);
+						break;
+					case Constants.VOTE_CARD:
+						// TODO
+						break;
+					case Constants.READ_CHECK:
+						break;
+					default:
+						break;
+					}
+					// Reset the buffer so that the old text won't be left to the next reading
+					for (int i=0; i<readBuffer.length; i++) {
+						readBuffer[i] = 0;
+					}
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+
 				return true;
 			}
 		} catch (IOException e) {
@@ -292,7 +290,7 @@ public class ServerThread extends Thread implements Runnable  {
 				socketList.get(i).close();
 			}
 			mBluetoothAdapter.cancelDiscovery();
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
