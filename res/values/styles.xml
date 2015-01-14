@@ -30,5 +30,23 @@
             <item name="android:shadowDy">1</item>
             <item name="android:shadowRadius">2</item>
     </style>
+    
+    <style name ="Cards">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">30dp</item>
+    </style>
+    
+    <style name="BlackCards" parent="Cards">
+        <item name="android:background">@drawable/black_card</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+    
+    <style name="WhiteCards" parent="Cards">
+        <item name="android:background">@drawable/white_card</item>
+        <item name="android:textColor">#000000</item>
+    </style>
 
 </resources>

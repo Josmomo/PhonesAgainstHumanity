@@ -4,8 +4,15 @@
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true"
     android:layout_weight="1"
-    android:baselineAligned="false" >
-
+    android:baselineAligned="false" 
+    android:background="@drawable/background_no_text">
+    
+    <TextView 
+        android:id="@+id/card_in_hand"
+        style="@style/BlackCards"/>
+    
+    
+ <!-- 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -45,5 +52,5 @@
             android:layout_height="wrap_content" >
         </ListView>
     </LinearLayout>
-
+	 -->
 </LinearLayout>

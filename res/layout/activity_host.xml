@@ -3,7 +3,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical" 
     android:background="@drawable/background">
-
+<!-- 
+    <Button
+        android:id="@+id/test"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
+        android:layout_centerInParent="true"
+        android:background="@drawable/buttons"
+        android:onClick="testThis"
+        android:text="Test" />
+    --> 
     <ProgressBar
         android:id="@+id/progressBarHostWaiting"
         style="?android:attr/progressBarStyleLarge"
