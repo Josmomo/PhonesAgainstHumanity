@@ -75,6 +75,7 @@ public class ClientThread extends Thread implements Runnable {
 			Log.d(getName(), "Connected to server");
 		} catch (IOException connectException) {
 			// Unable to connect, close the socket and get out
+			connectException.printStackTrace();
 			try {
 				mBluetoothSocket.close();
 			} catch (IOException e) {
