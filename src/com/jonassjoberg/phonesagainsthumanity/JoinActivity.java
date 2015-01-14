@@ -32,7 +32,7 @@ public class JoinActivity extends Activity {
 
 	private ClientThread clientThread;
 	private ArrayAdapter<String> mArrayAdapterSearchResults, mArrayAdapterCards, mArrayAdapterVoteCards;
-	private Button buttonBluetoothSearch, buttonBluetoothSend;
+	private Button buttonBluetoothSearch;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice mBluetoothDevice;
 	private String address = "E4:B0:21:B7:9F:65";
@@ -107,7 +107,6 @@ public class JoinActivity extends Activity {
 		});
 */
 		buttonBluetoothSearch = (Button) findViewById(R.id.buttonBluetoothSearch);
-		buttonBluetoothSend = (Button) findViewById(R.id.buttonBluetoothSend);
 
 		buttonBluetoothSearch.setOnClickListener(new OnClickListener() {
 
@@ -122,16 +121,7 @@ public class JoinActivity extends Activity {
 				mBluetoothAdapter.startDiscovery();
 			}
 		});
-		buttonBluetoothSend.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				String bytes = "Sending from Client";
-				//while(!clientThread.write(bytes.getBytes())) {}
-				Intent intent = new Intent(v.getContext(), com.jonassjoberg.phonesagainsthumanity.GameActivity.class);
-				startActivity(intent);
-			}
-		});
+		
 
 	}
 

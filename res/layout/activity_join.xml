@@ -1,41 +1,24 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="@drawable/background">
 
-    <LinearLayout
+    <Button
+        android:id="@+id/buttonBluetoothSearch"
+        style="@style/ButtonText"
         android:layout_width="match_parent"
+        android:layout_centerInParent="true"
+        android:background="@drawable/buttons"
+        android:text="Search for devices" />
+
+    <ListView
+        android:id="@+id/listViewBluetoothSearchResult"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:baselineAligned="false" >
+        android:layout_below="@id/buttonBluetoothSearch"
+        android:stackFromBottom="false"
+        android:transcriptMode="alwaysScroll" >
+    </ListView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical" >
-
-            <Button
-                android:id="@+id/buttonBluetoothSearch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Search for devices" />
-
-            <Button
-                android:id="@+id/buttonBluetoothSend"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send text" />
-        </LinearLayout>
-
-        <ListView
-            android:id="@+id/listViewBluetoothSearchResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:stackFromBottom="false"
-            android:transcriptMode="alwaysScroll" >
-        </ListView>
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

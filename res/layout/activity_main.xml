@@ -15,9 +15,17 @@
         android:layout_width="match_parent"
         android:layout_above="@+id/buttonHost"
         android:background="@drawable/buttons"
-        android:layout_marginTop="100dp"
         android:onClick="joinActivity"
         android:text="Join" />
+
+    <Button
+        android:id="@+id/buttonHost"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
+        android:background="@drawable/buttons"
+        android:layout_above="@+id/buttonDownload"
+        android:onClick="hostActivity"
+        android:text="Host" />
     
     <Button
         android:id="@+id/buttonDownload"
@@ -27,16 +35,5 @@
         android:background="@drawable/buttons"
         android:onClick="startDownload"
         android:text="Download standard decks" />
-
-    <Button
-        android:id="@+id/buttonHost"
-        style="@style/ButtonText"
-        android:layout_width="match_parent"
-        android:background="@drawable/buttons"
-        android:layout_above="@id/buttonDownload"
-        android:onClick="hostActivity"
-        android:text="Host" />
-
-    
 
 </RelativeLayout>
