@@ -182,8 +182,7 @@ public class ServerThread extends Thread implements Runnable  {
 								while (!write((Constants.START_GAME + "." + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
 							}
 							
-							Intent i = new Intent(hostActivity, GameHostActivity.class);
-							hostActivity.startActivity(i);
+							hostActivity.startTheGame();
 						}
 					});
 					// Create the AlertDialog object and return it

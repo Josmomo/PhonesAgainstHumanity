@@ -12,7 +12,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    
 
     <application
         android:allowBackup="true"
@@ -42,11 +41,13 @@
             android:label="@string/title_activity_server"
             android:screenOrientation="portrait" >
         </activity>
-         <activity
+        <activity
+            android:name=".GameHostActivity"
+            android:label="@string/title_activity_game_host" >
+        </activity>
+        <activity
             android:name=".GameActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/title_activity_server"
-            android:screenOrientation="portrait" >
+            android:label="@string/title_activity_game" >
         </activity>
     </application>
 

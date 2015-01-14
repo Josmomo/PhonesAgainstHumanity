@@ -52,7 +52,13 @@ public class HostActivity extends Activity {
 
 
 		serverThread = new ServerThread(this);
+		GameHostActivity.serverThread = serverThread;
 		serverThread.start();
+	}
+	
+	public void startTheGame() {
+		Intent i = new Intent(this, com.jonassjoberg.phonesagainsthumanity.GameHostActivity.class);
+		this.startActivity(i);
 	}
 
 	@Override
