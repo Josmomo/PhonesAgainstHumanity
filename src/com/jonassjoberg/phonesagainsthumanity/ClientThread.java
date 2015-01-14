@@ -27,7 +27,7 @@ public class ClientThread extends Thread implements Runnable {
 	private BluetoothSocket mBluetoothSocket;
 	private final InputStream mInputStream;
 	private final OutputStream mOutputStream;
-	private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+	private final UUID uuid = UUID.fromString(Constants.UUID);
 
 	private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
 	private JoinActivity joinActivity;

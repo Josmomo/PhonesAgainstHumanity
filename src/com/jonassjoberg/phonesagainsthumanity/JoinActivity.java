@@ -77,6 +77,7 @@ public class JoinActivity extends Activity {
 						clientThread.cancel();
 					}
 					clientThread = new ClientThread(mBluetoothDevice, myActivity, new Handler());
+					GameActivity.clientThread = clientThread;
 					clientThread.start();
 				}
 			}

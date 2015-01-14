@@ -14,5 +14,6 @@ public class Constants {
 	
 	public static final int READ_BUFFER_SIZE = 2048;
 	public static final String DOWNLOAD_URL = "https://raw.githubusercontent.com/samurailink3/hangouts-against-humanity/master/source/data/cards.js";
+	public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
 }

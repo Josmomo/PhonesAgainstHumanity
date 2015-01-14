@@ -18,6 +18,8 @@ public class GameActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_game);
 		clientThread.setGameActivity(this);
 		
 		mArrayAdapterCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
@@ -47,8 +49,7 @@ public class GameActivity extends Activity {
 		});
 
 		
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_game);
+		
 	}
 
 	@Override
