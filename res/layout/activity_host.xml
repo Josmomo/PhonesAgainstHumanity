@@ -1,20 +1,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <ProgressBar
-        android:id="@+id/progressBarHostWaiting"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
-
-    <ListView
-        android:id="@+id/listViewBluetoothConnectedDevices"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+
+        <ProgressBar
+            android:id="@+id/progressBarHostWaiting"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ListView
+            android:id="@+id/listViewBluetoothConnectedDevices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </ListView>
+    </LinearLayout>
 
     <Button
         android:id="@+id/buttonBluetoothSendCommand"
@@ -22,10 +27,54 @@
         android:layout_height="wrap_content"
         android:text="Send command" />
 
-    <TextView
-        android:id="@+id/textViewReceive"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="From Client" />
+        android:layout_weight="1"
+        android:baselineAligned="false" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/TextView01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hand"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <ListView
+                android:id="@+id/ListView01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+ >
+            </ListView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textViewReceive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voting Cards"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <ListView
+                android:id="@+id/ListViewRespondCards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+ >
+            </ListView>
+
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

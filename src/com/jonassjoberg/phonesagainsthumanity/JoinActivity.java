@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
+import Utils.Constants;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,7 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,28 +27,38 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 public class JoinActivity extends Activity {
 
 	private ClientThread clientThread;
-	private ArrayAdapter<String> mArrayAdapterSearchResults, mArrayAdapterCards;
+	private ArrayAdapter<String> mArrayAdapterSearchResults, mArrayAdapterCards, mArrayAdapterVoteCards;
 	private Button buttonBluetoothSearch, buttonBluetoothSend;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice mBluetoothDevice;
 	private String address = "E4:B0:21:B7:9F:65";
-	private ListView listViewSearchResults, listViewCards;
+	private ListView listViewSearchResults, listViewCards, listViewVoteCards;
 	private Activity myActivity;
+	private int points = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_join);
-		
+
+		// Set title to phone name
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		setTitle(mBluetoothAdapter.getRemoteDevice(mBluetoothAdapter.getAddress()).getName());
+
 		myActivity = this;
+
+		// Register the BroadcastReceiver
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+
 
 		mArrayAdapterSearchResults = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 		mArrayAdapterCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+		mArrayAdapterVoteCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
 		listViewSearchResults = (ListView) findViewById(R.id.listViewBluetoothSearchResult);
 		listViewSearchResults.setAdapter(mArrayAdapterSearchResults);
@@ -58,39 +69,46 @@ public class JoinActivity extends Activity {
 				// Get clicked address
 				String s[] = mArrayAdapterSearchResults.getItem(pos).split("\n");
 				address = s[1];
-				
-				
+
+
 				if (address != "") {
 					mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(address);
 					if (clientThread != null) {
 						clientThread.cancel();
 					}
-					clientThread = new ClientThread(mBluetoothDevice);
+					clientThread = new ClientThread(mBluetoothDevice, new Handler());
 					clientThread.start();
 				}
 			}
 
 		});
+
 		listViewCards = (ListView) findViewById(R.id.listViewCards);
 		listViewCards.setAdapter(mArrayAdapterCards);
 		listViewCards.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-				
+				// Send the picked card as response to the black card
+				while (!clientThread.write((Constants.RESPONSE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
 			}
 
 		});
-		
-		
+
+		listViewVoteCards = (ListView) findViewById(R.id.listViewVoteCards);
+		listViewVoteCards.setAdapter(mArrayAdapterVoteCards);
+		listViewVoteCards.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
+				// Send the picked card as response to the black card
+				while (!clientThread.write((Constants.VOTE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
+			}
+
+		});
+
 		buttonBluetoothSearch = (Button) findViewById(R.id.buttonBluetoothSearch);
 		buttonBluetoothSend = (Button) findViewById(R.id.buttonBluetoothSend);
-		
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-		// Register the BroadcastReceiver
-		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
 
 		buttonBluetoothSearch.setOnClickListener(new OnClickListener() {
 
@@ -110,10 +128,10 @@ public class JoinActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				String bytes = "Sending from Client";
-				clientThread.write(bytes.getBytes());
+				while(!clientThread.write(bytes.getBytes())) {}
 			}
 		});
-		
+
 	}
 
 	@Override
@@ -137,8 +155,8 @@ public class JoinActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
 		mBluetoothAdapter.cancelDiscovery();
+		super.onDestroy();
 	}
 
 	// Create a BroadcastReceiver for ACTION_FOUND
@@ -158,8 +176,6 @@ public class JoinActivity extends Activity {
 		}
 	};
 
-
-
 	/**
 	 * The ClientThread will handle all bluetooth communication to a host server.
 	 * @author Jonas
@@ -174,18 +190,20 @@ public class JoinActivity extends Activity {
 		private final OutputStream mOutputStream;
 		private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-		private byte[] readBuffer = new byte[128];
+		private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
+		private Handler mHandler;
 
-		public ClientThread(BluetoothDevice device) {
+		public ClientThread(BluetoothDevice device, Handler h) {
 			mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			mBluetoothDevice = device;
+			mHandler = h;
 			BluetoothSocket tmp = null;
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
 
 			// Get a BluetoothSocket to connect with the given BluetoothDevice
 			try {
-				tmp = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+				tmp = mBluetoothDevice.createInsecureRfcommSocketToServiceRecord(uuid);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -219,7 +237,7 @@ public class JoinActivity extends Activity {
 				}
 				return;
 			}
-			
+
 			while (true) {
 				read();
 			}
@@ -228,31 +246,48 @@ public class JoinActivity extends Activity {
 		/**
 		 * Writes to the outputstream
 		 * @param bytes to write
+		 * @return
 		 */
-		public void write(byte[] bytes) {
+		public boolean write(byte[] bytes) {
 			try {
 				if (mOutputStream != null) {
 					mOutputStream.write(bytes);
+					return true;
 				}
 			} catch (IOException e) { 
-				
+				e.printStackTrace();
 			}
+			return false;
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public boolean read() {
 			try {
 				if (mInputStream != null) {
 					mInputStream.read(readBuffer);
+					int skip = (int) mInputStream.skip(Constants.READ_BUFFER_SIZE);
 					// Add the card to hand
-					myActivity.runOnUiThread(new Runnable() {
-					    public void run() {
-					    	try {
+					mHandler.post(new Runnable() {
+						public void run() {
+							try {
 								String s = new String(readBuffer, "UTF-8");
-								mArrayAdapterCards.add(s);
+								String command = s.substring(0, 3);
+								String message = s.substring(3);
+
+								switch (command) {
+								case Constants.DECK_CARD:
+									mArrayAdapterCards.add(message);
+									break;
+								case Constants.VOTE_CARD:
+									mArrayAdapterVoteCards.add(message);
+									break;
+								case Constants.POINT:
+									break;
+								default:
+								}
+
+
+
+
 								// Reset the buffer so that the old text won't be left to the next reading
 								for (int i=0; i<readBuffer.length; i++) {
 									readBuffer[i] = 0;
@@ -260,12 +295,12 @@ public class JoinActivity extends Activity {
 							} catch (UnsupportedEncodingException e) {
 								e.printStackTrace();
 							}
-					    }
+						}
 					});
 					return true;
 				}
 			} catch (IOException e) {
-
+				e.printStackTrace();
 			}
 			return false;
 		}

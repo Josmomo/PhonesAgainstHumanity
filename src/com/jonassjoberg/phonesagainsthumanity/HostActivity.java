@@ -7,12 +7,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import Utils.Constants;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -26,49 +28,45 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
-public class HostActivity extends Activity {
+public class HostActivity extends Activity {	
 
+	
 	private final int NEW_GAME = 1;
 	private final int NEW_TURN = 2;
 	private final int WAITING_FOR_CLIENT_RESPONSE = 3;
+	private int gameState = NEW_GAME;
 
 	private ServerThread serverThread;
 	private BluetoothDevice mBluetoothDevice;
 	private BluetoothAdapter mBluetoothAdapter;
-	private ArrayAdapter<String> mArrayAdapter;
-	private ListView listView;
-	private Activity myActivity;
-	private Handler mHandler;
+	private ArrayAdapter<String> mArrayAdapter, mArrayAdapterCards;
+	private ListView listView, listViewRespondCards;
 
 	private Button buttonBluetoothSendCommand;
-	private TextView t2;
-	private Deck deck;
-
-	private int gameState = NEW_GAME;
-	public boolean allPlayersAdded = false;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_host);
 
-		myActivity = this;
-		deck = new Deck(this, Color.WHITE, "deck_white.properties");
-		mHandler = new Handler();
+		// Set title to phone name
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(mBluetoothAdapter.getAddress()); // "E4:B0:21:B7:9F:65"
+		setTitle(mBluetoothDevice.getName());
+
+		Intent discoverableIntent = new	Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
+		startActivity(discoverableIntent);
 
 		mArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+		mArrayAdapterCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
 		listView = (ListView) findViewById(R.id.listViewBluetoothConnectedDevices);
 		listView.setAdapter(mArrayAdapter);
-
-
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(mBluetoothAdapter.getAddress()); // "E4:B0:21:B7:9F:65"
-
-		t2 = (TextView) findViewById(R.id.textViewReceive);
+		
+		listViewRespondCards = (ListView) findViewById(R.id.ListViewRespondCards);
+		listViewRespondCards.setAdapter(mArrayAdapterCards);
 
 		buttonBluetoothSendCommand = (Button) findViewById(R.id.buttonBluetoothSendCommand);
 
@@ -80,7 +78,7 @@ public class HostActivity extends Activity {
 			}
 		});
 
-		serverThread = new ServerThread();
+		serverThread = new ServerThread(this, new Handler());
 		serverThread.start();
 	}
 
@@ -104,13 +102,11 @@ public class HostActivity extends Activity {
 	}
 
 
-	/**
-	 * The ServerThread will handle all bluetooth communcation to devices.
-	 * @author Jonas
-	 *
-	 */
-	private class ServerThread extends Thread implements Runnable  {
 
+
+
+	private class ServerThread extends Thread implements Runnable  {
+		
 		private BluetoothAdapter mBluetoothAdapter;
 		private BluetoothSocket mBluetoothSocket;
 		private BluetoothServerSocket mBluetoothServerSocket;
@@ -119,14 +115,26 @@ public class HostActivity extends Activity {
 		private ArrayList<OutputStream> outputStreamList;
 		private final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-		private byte[] readBuffer = new byte[128];
+		private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
+		private Object syncToken;
+		private Deck deck;
+		private Activity myActivity;
+		private Context hostActivityContext;
+		private boolean allPlayersAdded = false;
+		private boolean wait = true;
+		private Handler mHandler;
+		private int numberOfPlayers = 0;
 
-		public ServerThread() {
+		public ServerThread(Activity a, Handler h) {
+			myActivity = a;
+			mHandler = h;
+			hostActivityContext = myActivity.getApplicationContext();
 			mBluetoothServerSocket = null;
 			mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			socketList = new ArrayList<BluetoothSocket>();
 			inputStreamList = new ArrayList<InputStream>();
 			outputStreamList = new ArrayList<OutputStream>();
+			deck = new Deck(hostActivityContext, Color.WHITE, "deck_white.properties");
 
 			try {
 				mBluetoothServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("ServerThread", uuid);
@@ -137,48 +145,65 @@ public class HostActivity extends Activity {
 
 		@Override
 		public void run() {
-			Intent discoverableIntent = new	Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-			discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
-			startActivity(discoverableIntent);
-
 			addPlayersToHost();
 
 			while (true) {
 				switch (gameState) {
 				case NEW_GAME:
-					for (int i=0; i<socketList.size(); i++) {
-						write(deck.nextCard().getText().getBytes(), outputStreamList.get(i));
+					for (int i=0; i<3; i++) {
+						for (int j=0; j<socketList.size(); j++) {
+							while(!write((Constants.DECK_CARD + deck.nextCard().getText()).getBytes(), outputStreamList.get(j))) {}
+						}
 					}
 					gameState = WAITING_FOR_CLIENT_RESPONSE;
 					break;
 				case NEW_TURN:
 					for (int i=0; i<socketList.size(); i++) {
 						// Send a card
-						write(deck.nextCard().getText().getBytes(), outputStreamList.get(i));
+						while(!write((Constants.DECK_CARD + deck.nextCard().getText()).getBytes(), outputStreamList.get(i))) {}
+						try {
+							sleep(2000); // TODO remove
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					gameState = WAITING_FOR_CLIENT_RESPONSE;
 					break;
-				default:
+				case WAITING_FOR_CLIENT_RESPONSE:
 					try {
 						sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					//					for (int i=0; i<socketList.size(); i++) {
-					//						read(inputStreamList.get(i));
-					//					}
+					
+					int count = 0;
+					while (count < numberOfPlayers) {
+						if (read(inputStreamList.get(count))) {
+							count++;
+						}
+					}
+					// All responses received
+					gameState = NEW_TURN; // TODO Change to right state later
+					break;
+					default:
+						break;
 				}
 			}
 		}
 
+		/**
+		 * 
+		 * Blocks until all players have connected.
+		 */
 		private void addPlayersToHost() {
-			
+
 			mBluetoothSocket = null;
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
-			
+
 			// Do for all players
-			while (!allPlayersAdded ) {
+			while (numberOfPlayers < 8) {
 
 				try {
 					// Listen for incoming connections
@@ -188,11 +213,11 @@ public class HostActivity extends Activity {
 						Log.d(getName(), "Accepted connection");
 					} else {
 						Log.d(getName(), "mBluetoothSocket = null");
-						continue;
+						break;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					continue;
+					break;
 				}
 
 
@@ -207,7 +232,7 @@ public class HostActivity extends Activity {
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
-						continue;
+						break;
 					}
 				}
 
@@ -216,25 +241,18 @@ public class HostActivity extends Activity {
 				socketList.add(mBluetoothSocket);
 				inputStreamList.add(tmpIn);
 				outputStreamList.add(tmpOut);
+				numberOfPlayers++;
 
 				// List the device as connected
 				mHandler.post(new Runnable() {
-					
+
 					@Override
 					public void run() {
+
 						mArrayAdapter.add(mBluetoothSocket.getRemoteDevice().getName());
 						// TODO Ask if another player should be added
 					}
 				});
-//				myActivity.runOnUiThread(new Runnable() {
-//					public void run() {
-//						Log.i("", mArrayAdapter.toString());
-//						Log.i("", mBluetoothSocket.toString());
-//						mArrayAdapter.add(mBluetoothSocket.getRemoteDevice().getName());
-//						// TODO Ask if another player should be added
-//					}
-//				});
-
 
 				// Run on UI-thread
 				mHandler.post(new Runnable() {
@@ -245,12 +263,13 @@ public class HostActivity extends Activity {
 						builder.setMessage("Add another player?")
 						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								// FIRE ZE MISSILES!
+								wait = false;
 							}
 						})
 						.setNegativeButton("No", new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								allPlayersAdded = true;
+								wait = false;
 							}
 						});
 						// Create the AlertDialog object and return it
@@ -258,61 +277,115 @@ public class HostActivity extends Activity {
 					}
 				});
 
+
+				// Waiting for host answer
+				while (wait) {
+					try {
+						sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				wait = true;
+				if (allPlayersAdded) {
+					break;
+				}
 			}
 
 			// Close the serverSocket when all devices are accepted
 			try {
 				mBluetoothServerSocket.close();
+				mBluetoothAdapter.cancelDiscovery();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}		
 
-		public void write(byte[] bytes, OutputStream out) {
+		/**
+		 * Tries to write to out.
+		 * @param bytes What to write
+		 * @param out The Outputstream to write to.
+		 * @return True on success, otherwise false.
+		 */
+		public boolean write(byte[] bytes, OutputStream out) {
 			try {
-				out.write(bytes);
+				if (out != null) {
+					out.write(bytes);
+					out.flush();
+					return true;
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			return false;
 		}
 
+		/**
+		 * Tries to read from in and then do appropriate work according to the command within the message.
+		 * @param in The Inputstream to read from.
+		 * @return True if the read is successful, otherwise false.
+		 */
 		public boolean read(InputStream in) {
+			
 			try {
-				in.read(readBuffer, 0, readBuffer.length);
-				System.out.println(readBuffer);
-				myActivity.runOnUiThread(new Runnable() {
-					public void run() {
-						try {
-							String s = new String(readBuffer, "UTF-8");
-							t2.setText(s);
-							for (int i=0; i<readBuffer.length; i++) {
-								readBuffer[i] = 0;
+				if (in != null) {
+					in.read(readBuffer);
+					int skip = (int) in.skip(Constants.READ_BUFFER_SIZE);
+					
+					// Add the card to hand
+					mHandler.post(new Runnable() {
+					    public void run() {
+					    	try {
+					    		String s = new String(readBuffer, "UTF-8");
+								String command = s.substring(0, 3);
+								String message = s.substring(3);
+								
+								switch (command) {
+								case Constants.RESPONSE_CARD:
+									// TODO
+									// Add message to this turns responslist
+									mArrayAdapterCards.add(message);
+									break;
+								case Constants.VOTE_CARD:
+									// TODO
+									break;
+								case Constants.READ_CHECK:
+									break;
+								default:
+									break;
+								}
+								// Reset the buffer so that the old text won't be left to the next reading
+								for (int i=0; i<readBuffer.length; i++) {
+									readBuffer[i] = 0;
+								}
+							} catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
 							}
-						} catch (UnsupportedEncodingException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-					}
-				});
-				return true;
+					    }
+					});
+					return true;
+				}
 			} catch (IOException e) {
-
+				e.printStackTrace();
 			}
 			return false;
 		}
 
 		public void close() {
+
 			try {
 				// Close all sockets
 				for (int i=0; i<socketList.size(); i++) {
 					socketList.get(i).close();
 				}
-				mBluetoothServerSocket.close();
+				mBluetoothAdapter.cancelDiscovery();
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+
 	}
 }

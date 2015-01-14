@@ -1,5 +1,7 @@
 package com.jonassjoberg.phonesagainsthumanity;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.Random;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.os.Environment;
 import android.util.Log;
 
 public class Deck {
@@ -30,8 +33,10 @@ public class Deck {
 		Resources resources = context.getResources();
 		AssetManager assetManager = resources.getAssets();
 		try {
-		    InputStream inputStream = assetManager.open(fileName);
-		    properties.load(inputStream);
+			File file = new File(Environment.getExternalStorageDirectory(), "deck_white.properties");
+			FileInputStream fileInputStream = new FileInputStream(file);
+//		    InputStream inputStream = fileInputStream.//assetManager.open(fileName);
+		    properties.load(fileInputStream);
 		    System.out.println("The properties are now loaded");
 		    System.out.println("properties: " + properties);
 		} catch (IOException e) {

@@ -26,4 +26,13 @@
         android:text="Host"
         android:onClick="hostActivity" />
 
+    <Button
+        android:id="@+id/buttonDownload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonHost"
+        android:layout_centerHorizontal="true"
+        android:text="Download standard decks"
+        android:onClick="startDownload" />
+
 </RelativeLayout>
