@@ -7,13 +7,13 @@ import java.util.Stack;
 import java.util.UUID;
 
 import Utils.Constants;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 
 /**
  * The ClientThread will handle all bluetooth communication to a host server.
@@ -35,6 +35,7 @@ public class ClientThread extends Thread implements Runnable {
 	private Handler mHandler;
 	private String rest = "";
 	private Stack<String> readStack;
+	private int points = 0;
 
 	public ClientThread(BluetoothDevice device, JoinActivity a, Handler h) {
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -125,17 +126,34 @@ public class ClientThread extends Thread implements Runnable {
 				for (String card : cards) {
 					if (card.endsWith(".")) {
 						String command = card.substring(0, 3);
-						String message = card.substring(3);
+						final String message = card.substring(3);
 
 						switch (command) {
 						case Constants.DECK_CARD:
-							gameActivity.addCard(message);
+							gameActivity.runOnUiThread(new Runnable() {
+								
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									gameActivity.addCard(message);
+								}
+							});
+							
 							break;
 						case Constants.VOTE_CARD:
 							gameActivity.addToAdapterVoteCards(message);
 							break;
 						case Constants.POINT:
-//							gameActivity.addPoints(Integer.parseInt(message));
+							points += Integer.parseInt(message.substring(0, message.length()-1));
+							gameActivity.runOnUiThread(new Runnable() {
+								
+								@Override
+								public void run() {
+									gameActivity.updatePoints(points);
+								}
+							});
+							
+							
 							break;
 						case Constants.START_GAME:
 							Intent i = new Intent(joinActivity, GameActivity.class);

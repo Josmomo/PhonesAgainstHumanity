@@ -2,6 +2,7 @@ package com.jonassjoberg.phonesagainsthumanity;
 
 import java.util.ArrayList;
 
+import Utils.Constants;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ public class GameActivity extends Activity {
 	
 	private ArrayList<TextView> cards;
 	private LinearLayout cardField;
+	private TextView textViewPoints;
 	
 
 	@Override
@@ -29,12 +31,13 @@ public class GameActivity extends Activity {
 		
 		cards = new ArrayList<TextView>();
 		cardField = (LinearLayout)findViewById(R.id.card_field);
+		textViewPoints = (TextView) findViewById(R.id.textViewPoints);
 
 		clientThread.setGameActivity(this);
 
 	}
 	
-	public void addCard(String text) {
+	public void addCard(final String text) {
 		TextView tw = (TextView)getLayoutInflater().inflate(R.layout.layout_white_card, null);
 		tw.setText(text);
 		tw.setOnClickListener(new View.OnClickListener() {
@@ -42,7 +45,9 @@ public class GameActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				//TODO skicka + dra nytt kort
+				clientThread.write((Constants.RESPONSE_CARD + ((TextView) v).getText() + Constants.CARD_END_TAG).getBytes());
 				cardField.removeView(v);
+				cards.remove(v);
 			}
 		});
 		cards.add(tw);
@@ -76,5 +81,9 @@ public class GameActivity extends Activity {
 	
 	public void addToAdapterVoteCards(String s) {
 		mArrayAdapterVoteCards.add(s);
+	}
+	
+	public void updatePoints(int p) {
+		textViewPoints.setText(p);
 	}
 }

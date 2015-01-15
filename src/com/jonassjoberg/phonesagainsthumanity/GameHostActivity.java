@@ -20,11 +20,14 @@ public class GameHostActivity extends Activity {
 	private TextView cardInHand;
 	private Button changeView;
 	private boolean cardInHandVisible = true;
+	private Deck deckBlack;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game_host);
+		deckBlack = new Deck(this.getApplicationContext(), -1, "deck_black.properties");
+		
 		serverThread.setGameHostActivity(this);
 		
 		cards = new ArrayList<TextView>();
@@ -32,6 +35,7 @@ public class GameHostActivity extends Activity {
 		cardField = (LinearLayout)findViewById(R.id.card_field);
 		changeView = (Button) findViewById(R.id.change_view);
 		cardInHand = (TextView) findViewById(R.id.card_in_hand);
+		cardInHand.setText(deckBlack.nextCard().getText());
 		
 	}
 
@@ -75,10 +79,16 @@ public class GameHostActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				//TODO Säg att kortet vann
+				serverThread.pickedWinningCard((String) ((TextView) v).getText());
+				cards.clear();
 				cardField.removeAllViews();
 			}
 		});
 		cards.add(tw);
 		cardField.addView(tw);
+	}
+	
+	public void updateCardInHand() {
+		cardInHand.setText(deckBlack.nextCard().getText());
 	}
 }

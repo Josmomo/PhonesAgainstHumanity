@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import Utils.Constants;
@@ -29,6 +30,7 @@ public class ServerThread extends Thread implements Runnable  {
 	private final int NEW_GAME = 1;
 	private final int NEW_TURN = 2;
 	private final int WAITING_FOR_CLIENT_RESPONSE = 3;
+	private final int WAITING_FOR_SERVER_PICK = 4;
 	private int gameState = NEW_GAME;
 
 	private BluetoothAdapter mBluetoothAdapter;
@@ -45,8 +47,10 @@ public class ServerThread extends Thread implements Runnable  {
 	private GameHostActivity gameHostActivity;
 	private Context hostActivityContext;
 	private boolean allPlayersAdded = false;
+	private boolean pickedWinningCard = false;
 	private boolean wait = true;
 	private int numberOfPlayers = 0;
+	private HashMap<String, InputStream> cardToInputStream;
 
 	public ServerThread(HostActivity a) {
 		hostActivity = a;
@@ -56,6 +60,7 @@ public class ServerThread extends Thread implements Runnable  {
 		socketList = new ArrayList<BluetoothSocket>();
 		inputStreamList = new ArrayList<InputStream>();
 		outputStreamList = new ArrayList<OutputStream>();
+		cardToInputStream = new HashMap<String, InputStream>();
 		deckWhite = new Deck(hostActivityContext, Color.WHITE, "deck_white.properties");
 
 		try {
@@ -72,12 +77,12 @@ public class ServerThread extends Thread implements Runnable  {
 		while (true) {
 			switch (gameState) {
 			case NEW_GAME:
-//				for (int i=0; i<socketList.size(); i++) {
-//					for (int j=0; j<10; j++) {
-//						String text = deckWhite.nextCard().getText();
-//						while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
-//					}
-//				}
+				for (int i=0; i<socketList.size(); i++) {
+					for (int j=0; j<10; j++) {
+						String text = deckWhite.nextCard().getText();
+						while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
+					}
+				}
 				gameState = WAITING_FOR_CLIENT_RESPONSE;
 				break;
 			case NEW_TURN:
@@ -85,7 +90,6 @@ public class ServerThread extends Thread implements Runnable  {
 					String text = deckWhite.nextCard().getText();
 					while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
 				}
-				gameHostActivity.updateCardInHand();
 				gameState = WAITING_FOR_CLIENT_RESPONSE;
 				break;
 			case WAITING_FOR_CLIENT_RESPONSE:
@@ -96,14 +100,24 @@ public class ServerThread extends Thread implements Runnable  {
 				}
 
 				int count = 0;
+				// Read one command from each player
 				while (count < numberOfPlayers) {
 					if (read(inputStreamList.get(count))) {
 						count++;
 					}
 				}
-
 				// All responses received
-				gameState = NEW_TURN; // TODO Change to right state later
+				gameState = WAITING_FOR_SERVER_PICK; // TODO Change to right state later
+				break;
+			case WAITING_FOR_SERVER_PICK:
+				while (!pickedWinningCard) {
+					try {
+						sleep(2000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				break;
 			default:
 				break;
@@ -196,7 +210,6 @@ public class ServerThread extends Thread implements Runnable  {
 				try {
 					sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -238,7 +251,7 @@ public class ServerThread extends Thread implements Runnable  {
 	 * @param in The Inputstream to read from.
 	 * @return True if the read is successful, otherwise false.
 	 */
-	public boolean read(InputStream in) {
+	public boolean read(final InputStream in) {
 
 		try {
 			if (in != null) {
@@ -249,26 +262,37 @@ public class ServerThread extends Thread implements Runnable  {
 
 				try {
 					String s = new String(readBuffer, "UTF-8");
-					String command = s.substring(0, 3);
-					String message = s.substring(3);
-
-					switch (command) {
-					case Constants.RESPONSE_CARD:
-						// TODO
-						// Add message to this turns responslist
-						hostActivity.addToAdapter(message);
-						break;
-					case Constants.VOTE_CARD:
-						// TODO
-						break;
-					case Constants.READ_CHECK:
-						break;
-					default:
-						break;
-					}
-					// Reset the buffer so that the old text won't be left to the next reading
-					for (int i=0; i<readBuffer.length; i++) {
-						readBuffer[i] = 0;
+					String[] cards = s.split(Constants.CARD_END_TAG);
+					for (String card : cards) {
+						String command = card.substring(0, 3);
+						final String message = card.substring(3);
+	
+						switch (command) {
+						case Constants.RESPONSE_CARD:
+							// TODO
+							// Add message to this turns responslist
+							gameHostActivity.runOnUiThread(new Runnable() {
+								
+								@Override
+								public void run() {
+									gameHostActivity.addCard(message);
+									cardToInputStream.put(message, in);
+								}
+							});
+							
+							break;
+						case Constants.VOTE_CARD:
+							// TODO
+							break;
+						case Constants.READ_CHECK:
+							break;
+						default:
+							break;
+						}
+						// Reset the buffer so that the old text won't be left to the next reading
+						for (int i=0; i<readBuffer.length; i++) {
+							readBuffer[i] = 0;
+						}
 					}
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
@@ -299,6 +323,15 @@ public class ServerThread extends Thread implements Runnable  {
 
 	public void setGameHostActivity(GameHostActivity a) {
 		gameHostActivity = a;
-		gameHostActivity.updateCardInHand();
+	}
+	
+	public void pickedWinningCard(String s) {
+		for (int i=0; i<inputStreamList.size(); i++) {
+			if (inputStreamList.get(0).equals(cardToInputStream.get(s))) {
+				while (!write((Constants.POINT + "1." + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
+				break;
+			}
+		}
+		pickedWinningCard = true;
 	}
 }

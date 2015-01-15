@@ -33,7 +33,7 @@ public class Deck {
 		Resources resources = context.getResources();
 		AssetManager assetManager = resources.getAssets();
 		try {
-			File file = new File(Environment.getExternalStorageDirectory(), "deck_white.properties");
+			File file = new File(Environment.getExternalStorageDirectory(), fileName);
 			FileInputStream fileInputStream = new FileInputStream(file);
 //		    InputStream inputStream = fileInputStream.//assetManager.open(fileName);
 		    properties.load(fileInputStream);
@@ -49,12 +49,9 @@ public class Deck {
 			String value = properties.getProperty(key);
 			Card c = new Card(Integer.parseInt(key), color, value);
 			deck.put(key, c);
+			deckOrder.add(Integer.parseInt(key));
 		}
-
-		// ArrayList with random card order
-		for (int i=1; i<=deck.size(); i++) {
-			deckOrder.add(i);
-		}
+		
 		Collections.shuffle(deckOrder, new Random(seed));
 		
 	}
