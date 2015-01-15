@@ -1,56 +1,55 @@
 package com.jonassjoberg.phonesagainsthumanity;
 
-import Utils.Constants;
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class GameActivity extends Activity {
 	public static ClientThread clientThread;
 	private ListView listViewCards, listViewVoteCards;
 	private ArrayAdapter<String> mArrayAdapterCards, mArrayAdapterVoteCards;
+	
+	private ArrayList<TextView> cards;
+	private LinearLayout cardField;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
+		
+		cards = new ArrayList<TextView>();
+		cardField = (LinearLayout)findViewById(R.id.card_field);
+
 		clientThread.setGameActivity(this);
-		
-		mArrayAdapterCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-		mArrayAdapterVoteCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
-		listViewCards = (ListView) findViewById(R.id.listViewCards);
-		listViewCards.setAdapter(mArrayAdapterCards);
-		listViewCards.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-				// Send the picked card as response to the black card
-				while (!clientThread.write((Constants.RESPONSE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
-			}
-
-		});
-
-		listViewVoteCards = (ListView) findViewById(R.id.listViewVoteCards);
-		listViewVoteCards.setAdapter(mArrayAdapterVoteCards);
-		listViewVoteCards.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-				// Send the picked card as response to the black card
-				while (!clientThread.write((Constants.VOTE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
-			}
-
-		});
-
-		
-		
 	}
+	
+	public void addCard(String text) {
+		TextView tw = (TextView)getLayoutInflater().inflate(R.layout.layout_white_card, null);
+		tw.setText(text);
+		tw.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				//TODO skicka + dra nytt kort
+				cardField.removeView(v);
+			}
+		});
+		cards.add(tw);
+		cardField.addView(tw);
+	}
+	
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

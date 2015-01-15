@@ -4,6 +4,17 @@
     android:orientation="vertical" 
     android:background="@drawable/background">
 
+    <!-- 
+    <Button
+        android:id="@+id/test"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
+        android:layout_above="@+id/buttonBluetoothSearch"
+        android:background="@drawable/buttons"
+        android:onClick="testThis"
+        android:text="Test" />
+    
+    --> 
     <Button
         android:id="@+id/buttonBluetoothSearch"
         style="@style/ButtonText"
