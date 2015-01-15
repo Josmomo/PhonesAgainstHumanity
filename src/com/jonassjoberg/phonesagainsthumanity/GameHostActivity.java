@@ -33,15 +33,6 @@ public class GameHostActivity extends Activity {
 		changeView = (Button) findViewById(R.id.change_view);
 		cardInHand = (TextView) findViewById(R.id.card_in_hand);
 		
-		
-		for(int i = 1; i <= 10; i++) {
-			String s = "";
-			for(int j = 0; j < i*i*i; j++) {
-				s += j + " ";
-			}
-			addCard(s);
-		}
-		
 	}
 
 	@Override
