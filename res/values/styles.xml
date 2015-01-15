@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -37,6 +37,8 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:padding">30dp</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:maxEms">12</item>
     </style>
     
     <style name="BlackCards" parent="Cards">

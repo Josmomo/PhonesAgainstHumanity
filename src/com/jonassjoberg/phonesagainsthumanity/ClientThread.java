@@ -141,7 +141,7 @@ public class ClientThread extends Thread implements Runnable {
 							
 							break;
 						case Constants.VOTE_CARD:
-							gameActivity.addToAdapterVoteCards(message);
+							//gameActivity.addToAdapterVoteCards(message);
 							break;
 						case Constants.POINT:
 							points += Integer.parseInt(message.substring(0, message.length()-1));
