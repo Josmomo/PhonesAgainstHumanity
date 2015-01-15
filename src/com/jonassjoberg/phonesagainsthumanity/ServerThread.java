@@ -40,8 +40,7 @@ public class ServerThread extends Thread implements Runnable  {
 	private final UUID uuid = UUID.fromString(Constants.UUID);
 
 	private byte[] readBuffer = new byte[Constants.READ_BUFFER_SIZE];
-	private Object syncToken;
-	private Deck deck;
+	private Deck deckWhite;
 	private HostActivity hostActivity;
 	private GameHostActivity gameHostActivity;
 	private Context hostActivityContext;
@@ -57,7 +56,7 @@ public class ServerThread extends Thread implements Runnable  {
 		socketList = new ArrayList<BluetoothSocket>();
 		inputStreamList = new ArrayList<InputStream>();
 		outputStreamList = new ArrayList<OutputStream>();
-		deck = new Deck(hostActivityContext, Color.WHITE, "deck_white.properties");
+		deckWhite = new Deck(hostActivityContext, Color.WHITE, "deck_white.properties");
 
 		try {
 			mBluetoothServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("ServerThread", uuid);
@@ -73,19 +72,20 @@ public class ServerThread extends Thread implements Runnable  {
 		while (true) {
 			switch (gameState) {
 			case NEW_GAME:
-				//				for (int i=0; i<socketList.size(); i++) {
-				//					for (int j=0; j<10; j++) {
-				//						String text = deck.nextCard().getText();
-				//						while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
-				//					}
-				//				}
+//				for (int i=0; i<socketList.size(); i++) {
+//					for (int j=0; j<10; j++) {
+//						String text = deckWhite.nextCard().getText();
+//						while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
+//					}
+//				}
 				gameState = WAITING_FOR_CLIENT_RESPONSE;
 				break;
 			case NEW_TURN:
 				for (int i=0; i<socketList.size(); i++) {
-					String text = deck.nextCard().getText();
+					String text = deckWhite.nextCard().getText();
 					while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
 				}
+				gameHostActivity.updateCardInHand();
 				gameState = WAITING_FOR_CLIENT_RESPONSE;
 				break;
 			case WAITING_FOR_CLIENT_RESPONSE:
@@ -299,5 +299,6 @@ public class ServerThread extends Thread implements Runnable  {
 
 	public void setGameHostActivity(GameHostActivity a) {
 		gameHostActivity = a;
+		gameHostActivity.updateCardInHand();
 	}
 }

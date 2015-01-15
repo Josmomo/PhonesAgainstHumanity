@@ -49,8 +49,6 @@ public class Deck {
 			String value = properties.getProperty(key);
 			Card c = new Card(Integer.parseInt(key), color, value);
 			deck.put(key, c);
-			Log.d(this.getClass().getName(), "key lika med " + key);
-			Log.d(this.getClass().getName(), "value lika med " + value);
 		}
 
 		// ArrayList with random card order
