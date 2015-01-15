@@ -60,10 +60,11 @@ public class HostActivity extends Activity {
 		Intent i = new Intent(this, com.jonassjoberg.phonesagainsthumanity.GameHostActivity.class);
 		this.startActivity(i);
 	}
-	
+	/*
 	public void testThis(View v) {
 		startTheGame();
 	}
+	*/
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
