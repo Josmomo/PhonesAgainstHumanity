@@ -1,23 +1,14 @@
 package com.jonassjoberg.phonesagainsthumanity;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.UUID;
-
-import Utils.Constants;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -83,30 +74,7 @@ public class JoinActivity extends Activity {
 			}
 
 		});
-/*
-		listViewCards = (ListView) findViewById(R.id.listViewCards);
-		listViewCards.setAdapter(mArrayAdapterCards);
-		listViewCards.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-				// Send the picked card as response to the black card
-				while (!clientThread.write((Constants.RESPONSE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
-			}
-
-		});
-
-		listViewVoteCards = (ListView) findViewById(R.id.listViewVoteCards);
-		listViewVoteCards.setAdapter(mArrayAdapterVoteCards);
-		listViewVoteCards.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-				// Send the picked card as response to the black card
-				while (!clientThread.write((Constants.VOTE_CARD + mArrayAdapterCards.getItem(pos)).getBytes())) {}
-			}
-
-		});
-*/
+		
 		buttonBluetoothSearch = (Button) findViewById(R.id.buttonBluetoothSearch);
 
 		buttonBluetoothSearch.setOnClickListener(new OnClickListener() {
@@ -151,6 +119,15 @@ public class JoinActivity extends Activity {
 		mBluetoothAdapter.cancelDiscovery();
 		super.onDestroy();
 	}
+	
+	/*
+	public void testThis(View v) {
+		GameActivity.clientThread = clientThread;
+		Intent i = new Intent(this, GameActivity.class);
+		startActivity(i);
+	}
+	*/
+	
 
 	// Create a BroadcastReceiver for ACTION_FOUND
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {

@@ -129,7 +129,7 @@ public class ClientThread extends Thread implements Runnable {
 
 						switch (command) {
 						case Constants.DECK_CARD:
-							gameActivity.addToAdapterCards(message);
+							gameActivity.addCard(message);
 							break;
 						case Constants.VOTE_CARD:
 							gameActivity.addToAdapterVoteCards(message);
