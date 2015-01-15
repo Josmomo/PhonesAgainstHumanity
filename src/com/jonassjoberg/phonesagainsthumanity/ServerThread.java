@@ -122,10 +122,10 @@ public class ServerThread extends Thread implements Runnable  {
 					try {
 						sleep(2000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
+				pickedWinningCard = false;
 				gameState = NEW_TURN;
 				break;
 			case WAITING_FOR_CLIENT_STARTUP:
@@ -292,7 +292,7 @@ public class ServerThread extends Thread implements Runnable  {
 					for (String card : cards) {
 						String command = card.substring(0, 3);
 						final String message = card.substring(3);
-	
+						
 						switch (command) {
 						case Constants.RESPONSE_CARD:
 							// TODO
@@ -342,7 +342,6 @@ public class ServerThread extends Thread implements Runnable  {
 			mBluetoothAdapter.cancelDiscovery();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -353,8 +352,9 @@ public class ServerThread extends Thread implements Runnable  {
 	
 	public void pickedWinningCard(String s) {
 		for (int i=0; i<inputStreamList.size(); i++) {
-			if (inputStreamList.get(0).equals(cardToInputStream.get(s))) {
+			if (inputStreamList.get(i).equals(cardToInputStream.get(s))) {
 				while (!write((Constants.POINT + "1." + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
+				cardToInputStream.clear();
 				break;
 			}
 		}
