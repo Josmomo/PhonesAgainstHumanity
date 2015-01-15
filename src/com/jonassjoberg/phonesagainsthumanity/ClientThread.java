@@ -7,7 +7,6 @@ import java.util.Stack;
 import java.util.UUID;
 
 import Utils.Constants;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -132,7 +131,7 @@ public class ClientThread extends Thread implements Runnable {
 							gameActivity.addCard(message);
 							break;
 						case Constants.VOTE_CARD:
-							gameActivity.addToAdapterVoteCards(message);
+							//gameActivity.addToAdapterVoteCards(message);
 							break;
 						case Constants.POINT:
 //							gameActivity.addPoints(Integer.parseInt(message));

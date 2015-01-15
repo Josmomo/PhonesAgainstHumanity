@@ -4,19 +4,14 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class GameActivity extends Activity {
 	public static ClientThread clientThread;
-	private ListView listViewCards, listViewVoteCards;
-	private ArrayAdapter<String> mArrayAdapterCards, mArrayAdapterVoteCards;
 	
 	private ArrayList<TextView> cards;
 	private LinearLayout cardField;
@@ -34,7 +29,9 @@ public class GameActivity extends Activity {
 
 	}
 	
+	
 	public void addCard(String text) {
+		//Create a text view with the white card design and add a text to it
 		TextView tw = (TextView)getLayoutInflater().inflate(R.layout.layout_white_card, null);
 		tw.setText(text);
 		tw.setOnClickListener(new View.OnClickListener() {
@@ -45,6 +42,7 @@ public class GameActivity extends Activity {
 				cardField.removeView(v);
 			}
 		});
+		//Att the card to the view
 		cards.add(tw);
 		cardField.addView(tw);
 	}
@@ -68,13 +66,5 @@ public class GameActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-	
-	public void addToAdapterCards(String s) {
-		mArrayAdapterCards.add(s);
-	}
-	
-	public void addToAdapterVoteCards(String s) {
-		mArrayAdapterVoteCards.add(s);
 	}
 }

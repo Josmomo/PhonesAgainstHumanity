@@ -5,13 +5,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 public class HostActivity extends Activity {	
@@ -25,10 +21,9 @@ public class HostActivity extends Activity {
 	private ServerThread serverThread;
 	private BluetoothDevice mBluetoothDevice;
 	private BluetoothAdapter mBluetoothAdapter;
-	private ArrayAdapter<String> mArrayAdapter, mArrayAdapterCards;
-	private ListView listView, listViewRespondCards;
+	private ArrayAdapter<String> mArrayAdapter;
+	private ListView listView;
 
-	private Button buttonBluetoothSendCommand;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +40,6 @@ public class HostActivity extends Activity {
 		startActivity(discoverableIntent);
 
 		mArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-		mArrayAdapterCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
 		listView = (ListView) findViewById(R.id.listViewBluetoothConnectedDevices);
 		listView.setAdapter(mArrayAdapter);

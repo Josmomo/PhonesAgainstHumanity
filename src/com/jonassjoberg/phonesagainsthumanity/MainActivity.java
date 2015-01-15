@@ -245,9 +245,8 @@ public class MainActivity extends Activity {
 				        }
 				        
 				    } catch (JSONException e) {
-				        // Oops
+				    	e.printStackTrace();
 				    } catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -258,7 +257,6 @@ public class MainActivity extends Activity {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 		}

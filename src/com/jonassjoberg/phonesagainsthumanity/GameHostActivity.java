@@ -55,6 +55,7 @@ public class GameHostActivity extends Activity {
 	}
 	
 	public void changeView(View v) {
+		//Change between watching the response cards ore the question
 		if(cardInHandVisible) {
 			cardInHand.setVisibility(View.GONE);
 			scrollField.setVisibility(View.VISIBLE);
@@ -68,6 +69,7 @@ public class GameHostActivity extends Activity {
 	}
 	
 	public void addCard(String text) {
+		//Create a text view with the white card design
 		TextView tw = (TextView)getLayoutInflater().inflate(R.layout.layout_white_card, null);
 		tw.setText(text);
 		tw.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +80,7 @@ public class GameHostActivity extends Activity {
 				cardField.removeAllViews();
 			}
 		});
+		//Add the card to the scroll view
 		cards.add(tw);
 		cardField.addView(tw);
 	}

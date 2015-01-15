@@ -22,12 +22,12 @@ import android.widget.ListView;
 public class JoinActivity extends Activity {
 
 	private ClientThread clientThread;
-	private ArrayAdapter<String> mArrayAdapterSearchResults, mArrayAdapterCards, mArrayAdapterVoteCards;
+	private ArrayAdapter<String> mArrayAdapterSearchResults;
 	private Button buttonBluetoothSearch;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothDevice mBluetoothDevice;
 	private String address = "E4:B0:21:B7:9F:65";
-	private ListView listViewSearchResults, listViewCards, listViewVoteCards;
+	private ListView listViewSearchResults;
 	private JoinActivity myActivity;
 	private int points = 0;
 
@@ -48,8 +48,6 @@ public class JoinActivity extends Activity {
 
 
 		mArrayAdapterSearchResults = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-		mArrayAdapterCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-		mArrayAdapterVoteCards = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
 		listViewSearchResults = (ListView) findViewById(R.id.listViewBluetoothSearchResult);
 		listViewSearchResults.setAdapter(mArrayAdapterSearchResults);
