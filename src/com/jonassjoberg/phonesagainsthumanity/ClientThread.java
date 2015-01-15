@@ -183,5 +183,6 @@ public class ClientThread extends Thread implements Runnable {
 
 	public void setGameActivity(GameActivity a) {
 		 gameActivity = a;
+		 write(("Klar" + Constants.CARD_END_TAG).getBytes());
 	}
 }

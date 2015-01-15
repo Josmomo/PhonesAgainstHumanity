@@ -34,7 +34,6 @@ public class GameActivity extends Activity {
 		textViewPoints = (TextView) findViewById(R.id.textViewPoints);
 
 		clientThread.setGameActivity(this);
-
 	}
 	
 	public void addCard(final String text) {
@@ -84,6 +83,6 @@ public class GameActivity extends Activity {
 	}
 	
 	public void updatePoints(int p) {
-		textViewPoints.setText(p);
+		textViewPoints.setText(String.valueOf(p));
 	}
 }

@@ -31,7 +31,8 @@ public class ServerThread extends Thread implements Runnable  {
 	private final int NEW_TURN = 2;
 	private final int WAITING_FOR_CLIENT_RESPONSE = 3;
 	private final int WAITING_FOR_SERVER_PICK = 4;
-	private int gameState = NEW_GAME;
+	private final int WAITING_FOR_CLIENT_STARTUP = 5;
+	private int gameState = WAITING_FOR_CLIENT_STARTUP;
 
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothSocket mBluetoothSocket;
@@ -90,6 +91,13 @@ public class ServerThread extends Thread implements Runnable  {
 					String text = deckWhite.nextCard().getText();
 					while(!write((Constants.DECK_CARD + text + Constants.CARD_END_TAG).getBytes(), outputStreamList.get(i))) {}
 				}
+				gameHostActivity.runOnUiThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						gameHostActivity.updateCardInHand();
+					}
+				});
 				gameState = WAITING_FOR_CLIENT_RESPONSE;
 				break;
 			case WAITING_FOR_CLIENT_RESPONSE:
@@ -107,7 +115,7 @@ public class ServerThread extends Thread implements Runnable  {
 					}
 				}
 				// All responses received
-				gameState = WAITING_FOR_SERVER_PICK; // TODO Change to right state later
+				gameState = WAITING_FOR_SERVER_PICK;
 				break;
 			case WAITING_FOR_SERVER_PICK:
 				while (!pickedWinningCard) {
@@ -118,6 +126,24 @@ public class ServerThread extends Thread implements Runnable  {
 						e.printStackTrace();
 					}
 				}
+				gameState = NEW_TURN;
+				break;
+			case WAITING_FOR_CLIENT_STARTUP:
+				try {
+					sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				int count2 = 0;
+				// Read one command from each player
+				while (count2 < numberOfPlayers) {
+					if (read(inputStreamList.get(count2))) {
+						count2++;
+					}
+				}
+				// All responses received
+				gameState = NEW_GAME;
 				break;
 			default:
 				break;
