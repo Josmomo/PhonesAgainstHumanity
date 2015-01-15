@@ -64,7 +64,8 @@ public class HostActivity extends Activity {
 	public void testThis(View v) {
 		startTheGame();
 	}
-*/
+	*/
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

@@ -1,18 +1,44 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true"
     android:layout_weight="1"
-    android:baselineAligned="false" 
-    android:background="@drawable/background_no_text">
-    
-    <TextView 
+    android:background="@drawable/background_no_text"
+    android:baselineAligned="false" >
+
+     <Button
+        android:id="@+id/change_view"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/buttons"
+        android:text="Check responses" 
+        android:onClick="changeView"/>
+     
+    <TextView
         android:id="@+id/card_in_hand"
-        style="@style/BlackCards"/>
-    
-    
- <!-- 
+        style="@style/BlackCards" 
+        android:layout_above="@id/change_view"/>
+
+    <HorizontalScrollView
+        android:id="@+id/card_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/change_view"
+        android:layout_gravity="center"
+        android:orientation="horizontal" 
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/card_field"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!--
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -52,5 +78,6 @@
             android:layout_height="wrap_content" >
         </ListView>
     </LinearLayout>
-	 -->
-</LinearLayout>
+    -->
+
+</RelativeLayout>

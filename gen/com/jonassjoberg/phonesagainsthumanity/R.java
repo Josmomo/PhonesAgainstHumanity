@@ -30,16 +30,18 @@ public final class R {
         public static final int white_card=0x7f020005;
     }
     public static final class id {
-        public static final int action_settings=0x7f080009;
-        public static final int buttonBluetoothSearch=0x7f080004;
-        public static final int buttonDownload=0x7f080008;
-        public static final int buttonHost=0x7f080007;
-        public static final int buttonJoin=0x7f080006;
+        public static final int action_settings=0x7f08000b;
+        public static final int buttonBluetoothSearch=0x7f080006;
+        public static final int buttonDownload=0x7f08000a;
+        public static final int buttonHost=0x7f080009;
+        public static final int buttonJoin=0x7f080008;
         public static final int card_field=0x7f080000;
-        public static final int card_in_hand=0x7f080001;
-        public static final int listViewBluetoothConnectedDevices=0x7f080003;
-        public static final int listViewBluetoothSearchResult=0x7f080005;
-        public static final int progressBarHostWaiting=0x7f080002;
+        public static final int card_in_hand=0x7f080002;
+        public static final int card_scroll=0x7f080003;
+        public static final int change_view=0x7f080001;
+        public static final int listViewBluetoothConnectedDevices=0x7f080005;
+        public static final int listViewBluetoothSearchResult=0x7f080007;
+        public static final int progressBarHostWaiting=0x7f080004;
     }
     public static final class layout {
         public static final int activity_game=0x7f030000;
